@@ -1,5 +1,5 @@
 import { FormEvent, useState, useEffect } from "react"
-import {addDoc, collection, onSnapshot, query, serverTimestamp, where} from "firebase/firestore"
+import {addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where} from "firebase/firestore"
 import { auth, db } from "../firebase-config"
 import "../styles/Chat.css"
 
@@ -14,7 +14,7 @@ export const Chat = ({room}: ChatProps) => {
     const messagesRef = collection(db, "messages")
 
     useEffect(()=> {
-        const queryMessages = query(messagesRef, where("room", "==", room))
+        const queryMessages = query(messagesRef, where("room", "==", room), orderBy("createdAt"))
         const unsubscribe = onSnapshot(queryMessages, (snapshot) => {
             let messages: any = []
             snapshot.forEach((doc)=> {
@@ -42,10 +42,16 @@ export const Chat = ({room}: ChatProps) => {
 
     return (
         <div className="chat-app" >
-            <div>
+            <div className="header" >
+                <h1>Welcome to: {room.toUpperCase()}</h1>
+            </div>
+            <div className="messages" >
                 {
                     messages.map((message: any) => (
-                        <h1>{message?.text}</h1>
+                        <div key={message.id} className="message" >
+                            <span className="user" >{message.user}</span>
+                            {message.text}
+                        </div>
                     ))
                 }
             </div>
